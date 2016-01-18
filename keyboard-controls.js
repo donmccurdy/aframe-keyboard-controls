@@ -190,14 +190,15 @@ module.exports = {
   },
 
   getKeys: function () {
-    var proxyControls = this.el.components['proxy-controls'],
-        proxyKeys = proxyControls && proxyControls.isConnected()
-          && proxyControls.getKeyboard();
-    return proxyKeys || this.localKeys;
+    if (this.isProxied()) {
+      return this.el.components['proxy-controls'].getKeyboard();
+    }
+    return this.localKeys;
   },
 
   isProxied: function () {
-    return this.getKeys() === this.localKeys;
+    var proxyControls = this.el.components['proxy-controls'];
+    return proxyControls && proxyControls.isConnected();
   }
 
 };
