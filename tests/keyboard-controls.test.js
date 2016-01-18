@@ -35,8 +35,8 @@ describe('Keyboard Controls', function () {
 	*/
 
 	describe('Accessors', function () {
-		it.skip('is attached to component', function () {
-			// TODO
+		it('is attached to component', function () {
+			expect(ctrl).to.be.ok;
 		});
 	});
 
