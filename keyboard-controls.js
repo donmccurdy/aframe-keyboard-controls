@@ -1,6 +1,7 @@
 require('keyboardevent-key-polyfill').polyfill();
 
-var MAX_DELTA = 0.2;
+var MAX_DELTA = 0.2,
+    PROXY_FLAG = '__keyboard-controls-proxy';
 
 var KeyboardEvent = window.KeyboardEvent;
 
@@ -39,7 +40,7 @@ module.exports = {
 
   init: function () {
     this.velocity = new THREE.Vector3();
-    this.keys = {};
+    this.localKeys = {};
     this.listeners = {
       keydown: this.onKeyDown.bind(this),
       keyup: this.onKeyUp.bind(this)
@@ -64,7 +65,7 @@ module.exports = {
     var prevTime = this.prevTime = this.prevTime || Date.now();
     var time = window.performance.now();
     var delta = (time - prevTime) / 1000;
-    var keys = this.keys;
+    var keys = this.getKeys();
     var movementVector;
     var pitchAxis = data.pitchAxis;
     var rollAxis = data.rollAxis;
@@ -156,24 +157,26 @@ module.exports = {
   },
 
   onKeyDown: function (event) {
+    this.localKeys[event.key] = true;
     this.emit(event);
-    this.keys[event.key] = true;
   },
 
   onKeyUp: function (event) {
+    delete this.localKeys[event.key];
     this.emit(event);
-    this.keys[event.key] = false;
   },
 
   emit: function (event) {
     // TODO - keydown only initially?
-    // TODO - include original event if remote
     // TODO - where the f is the spacebar
 
     // Emit original event.
-    // this.el.emit(event.type, event);
+    if (PROXY_FLAG in event) {
+      // TODO - Method never triggered.
+      this.el.emit(event.type, event);
+    }
 
-    // Emit convenience event, identifying button index.
+    // Emit convenience event, identifying key.
     this.el.emit(event.type + ':' + event.key, new KeyboardEvent(event.type, event));
     console.log(event.type + ':' + event.key);
   },
@@ -183,7 +186,18 @@ module.exports = {
   */
  
   isPressed: function (key) {
-    return this.keys[key];
+    return key in this.getKeys();
+  },
+
+  getKeys: function () {
+    var proxyControls = this.el.components['proxy-controls'],
+        proxyKeys = proxyControls && proxyControls.isConnected()
+          && proxyControls.getKeyboard();
+    return proxyKeys || this.localKeys;
+  },
+
+  isProxied: function () {
+    return this.getKeys() === this.localKeys;
   }
 
 };
