@@ -1,6 +1,6 @@
 {
   "name": "aframe-keyboard-controls",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Keyboard controls for A-Frame.",
   "main": "gamepad-controls.js",
   "config": {
