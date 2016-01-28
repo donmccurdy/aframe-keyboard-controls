@@ -254,13 +254,13 @@
 
 	  getKeys: function () {
 	    if (this.isProxied()) {
-	      return this.el.components['proxy-controls'].getKeyboard();
+	      return this.el.sceneEl.components['proxy-controls'].getKeyboard();
 	    }
 	    return this.localKeys;
 	  },
 
 	  isProxied: function () {
-	    var proxyControls = this.el.components['proxy-controls'];
+	    var proxyControls = this.el.sceneEl.components['proxy-controls'];
 	    return proxyControls && proxyControls.isConnected();
 	  }
 
