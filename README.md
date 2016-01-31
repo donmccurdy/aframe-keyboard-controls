@@ -4,7 +4,7 @@ Keyboard controls for A-Frame.
 
 ## Overview
 
-Bindings and events for keyboard controls on an A-Frame VR scene. When combined with [ProxyControls.js](https://github.com/cvan/socketpeer) (with the [proxy-controls](https://github.com/donmccurdy/aframe-proxy-controls) component for A-Frame), can also receive remote keyboard input by WebRTC.
+Bindings and events for keyboard controls on an A-Frame VR scene. When combined with [ProxyControls.js](https://proxy-controls.donmccurdy.com) (with the [proxy-controls](https://github.com/donmccurdy/aframe-proxy-controls) component for A-Frame), can also receive remote keyboard input by WebRTC.
 
 ## Usage
 
