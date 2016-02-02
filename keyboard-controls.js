@@ -88,12 +88,12 @@ module.exports = {
 
     if (data.enabled) {
       if (data.pitchAxisEnabled) {
-        if (keys.a || keys.Left)  { velocity[pitchAxis] -= pitchSign * acceleration * delta; } // Left
-        if (keys.d || keys.Right) { velocity[pitchAxis] += pitchSign * acceleration * delta; } // Right
+        if (keys.a || keys.ArrowLeft)  { velocity[pitchAxis] -= pitchSign * acceleration * delta; }
+        if (keys.d || keys.ArrowRight) { velocity[pitchAxis] += pitchSign * acceleration * delta; }
       }
       if (data.rollAxisEnabled) {
-        if (keys.w || keys.Up)   { velocity[rollAxis] -= rollSign * acceleration * delta; } // Up
-        if (keys.s || keys.Down) { velocity[rollAxis] += rollSign * acceleration * delta; } // Down
+        if (keys.w || keys.ArrowUp)   { velocity[rollAxis] -= rollSign * acceleration * delta; }
+        if (keys.s || keys.ArrowDown) { velocity[rollAxis] += rollSign * acceleration * delta; }
       }
     }
 
