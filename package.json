@@ -8,7 +8,7 @@
     "demo_port": 8000
   },
   "scripts": {
-    "dev": "budo browser.js:bundle.js --dir examples --port $npm_package_config_demo_port --host $npm_package_config_demo_host --live --open",
+    "dev": "budo browser.js:bundle.js --dir examples --port $npm_package_config_demo_port --host $npm_package_config_demo_host --live",
     "dist": "webpack browser.js dist/aframe-keyboard-controls.js && webpack -p browser.js dist/aframe-keyboard-controls.min.js",
     "postpublish": "npm run dist",
     "test": "karma start ./tests/karma.conf.js",
