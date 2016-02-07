@@ -106,7 +106,8 @@
 	    this.localKeys = {};
 	    this.listeners = {
 	      keydown: this.onKeyDown.bind(this),
-	      keyup: this.onKeyUp.bind(this)
+	      keyup: this.onKeyUp.bind(this),
+	      blur: this.onBlur.bind(this)
 	    };
 
 	    var sceneEl = this.el.sceneEl;
@@ -220,11 +221,13 @@
 	  attachEventListeners: function () {
 	    window.addEventListener('keydown', this.listeners.keydown, false);
 	    window.addEventListener('keyup', this.listeners.keyup, false);
+	    window.addEventListener('blur', this.listeners.blur, false);
 	  },
 
 	  removeEventListeners: function () {
 	    window.removeEventListener('keydown', this.listeners.keydown);
 	    window.removeEventListener('keyup', this.listeners.keyup);
+	    window.removeEventListener('blur', this.listeners.blur);
 	  },
 
 	  onKeyDown: function (event) {
@@ -235,6 +238,14 @@
 	  onKeyUp: function (event) {
 	    delete this.localKeys[event.code];
 	    this.emit(event);
+	  },
+
+	  onBlur: function () {
+	    for (var code in this.localKeys) {
+	      if (this.localKeys.hasOwnProperty(code)) {
+	        delete this.localKeys[code];
+	      }
+	    }
 	  },
 
 	  emit: function (event) {
