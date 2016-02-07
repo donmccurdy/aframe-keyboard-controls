@@ -66,4 +66,4 @@ A complete list of `code` values may be found [here](https://w3c.github.io/uieve
 
 ## Known Issues
 
-In OS X, pressing the Command/Meta (⌘) key blocks all other key events. For example, pressing `A`, pressing `⌘`, releasing `A`, and then releasing `⌘` would create a `keyup:KeyA` event, but no `keyup:KeyA`. This seems to be unavoidable. Because of this, I do not recommend using the Command/Meta key in your apps.
+In OS X, pressing the Command/Meta (⌘) key blocks all other key events. For example, pressing `A`, pressing `⌘`, releasing `A`, and then releasing `⌘` would create a `keydown:KeyA` event, but no `keyup:KeyA`. Because of this, I do not recommend using the Command/Meta key in your apps.
