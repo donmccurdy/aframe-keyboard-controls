@@ -41,3 +41,29 @@ Example:
   </a-entity>
 </a-scene>
 ```
+
+## Check Keyboard State
+
+To check the pressed/unpressed state of a given [Keyboard.code](https://w3c.github.io/uievents-code/#code-value-tables), use the `isPressed()` method:
+
+```javascript
+var keyboardControls = el.components['keyboard-controls'];
+keyboardControls.isPressed('ArrowLeft');
+```
+
+## Events
+
+`keyboard-controls` comes with a polyfill guaranteeing support for [KeyboardEvent.key](https://www.w3.org/TR/DOM-Level-3-Events-key/) and [KeyboardEvent.code](https://w3c.github.io/uievents-code/). When a `keydown` or `keyup` event is detected, an extra event is created with the `code` attached. Example usage:
+
+```html
+<a-entity keyboard-controls
+          sound="src: reload.wav;
+                 on: keydown:KeyR">
+</a-entity>
+```
+
+A complete list of `code` values may be found [here](https://w3c.github.io/uievents-code/#code-value-tables).
+
+## Known Issues
+
+In OS X, pressing the Command/Meta (⌘) key blocks all other key events. For example, pressing `A`, pressing `⌘`, releasing `A`, and then releasing `⌘` would create a `keyup:KeyA` event, but no `keyup:KeyA`. This seems to be unavoidable. Because of this, I do not recommend using the Command/Meta key in your apps.

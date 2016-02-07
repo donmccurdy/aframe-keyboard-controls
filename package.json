@@ -38,9 +38,7 @@
     "url": "https://github.com/donmccurdy/aframe-keyboard-controls/issues"
   },
   "homepage": "https://github.com/donmccurdy/aframe-keyboard-controls#readme",
-  "dependencies": {
-    "keyboardevent-key-polyfill": "^1.0.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "aframe-core": "^0.1.3",
     "browserify": "^12.0.1",

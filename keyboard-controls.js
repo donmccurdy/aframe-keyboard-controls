@@ -1,4 +1,4 @@
-require('keyboardevent-key-polyfill').polyfill();
+require('./lib/keyboard.polyfill');
 
 var MAX_DELTA = 0.2,
     PROXY_FLAG = '__keyboard-controls-proxy';
@@ -88,18 +88,18 @@ module.exports = {
 
     if (data.enabled) {
       if (data.pitchAxisEnabled) {
-        if (keys.a || keys.Left || keys.ArrowLeft)  {
+        if (keys.KeyA || keys.ArrowLeft)  {
           velocity[pitchAxis] -= pitchSign * acceleration * delta;
         }
-        if (keys.d || keys.Right || keys.ArrowRight) {
+        if (keys.KeyD || keys.ArrowRight) {
           velocity[pitchAxis] += pitchSign * acceleration * delta;
         }
       }
       if (data.rollAxisEnabled) {
-        if (keys.w || keys.Up || keys.ArrowUp)   {
+        if (keys.KeyW || keys.ArrowUp)   {
           velocity[rollAxis] -= rollSign * acceleration * delta;
         }
-        if (keys.s || keys.Down || keys.ArrowDown) {
+        if (keys.KeyS || keys.ArrowDown) {
           velocity[rollAxis] += rollSign * acceleration * delta;
         }
       }
@@ -165,12 +165,12 @@ module.exports = {
   },
 
   onKeyDown: function (event) {
-    this.localKeys[event.key] = true;
+    this.localKeys[event.code] = true;
     this.emit(event);
   },
 
   onKeyUp: function (event) {
-    delete this.localKeys[event.key];
+    delete this.localKeys[event.code];
     this.emit(event);
   },
 
@@ -185,16 +185,16 @@ module.exports = {
     }
 
     // Emit convenience event, identifying key.
-    this.el.emit(event.type + ':' + event.key, new KeyboardEvent(event.type, event));
-    console.log(event.type + ':' + event.key);
+    this.el.emit(event.type + ':' + event.code, new KeyboardEvent(event.type, event));
+    console.log(event.type + ':' + event.code);
   },
 
   /*******************************************************************
   * Accessors
   */
  
-  isPressed: function (key) {
-    return key in this.getKeys();
+  isPressed: function (code) {
+    return code in this.getKeys();
   },
 
   getKeys: function () {
