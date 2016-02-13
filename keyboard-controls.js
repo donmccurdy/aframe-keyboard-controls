@@ -35,7 +35,8 @@ module.exports = {
     rollAxisInverted:  { default: false },
     rollAxisEnabled:   { default: true },
     pitchAxisInverted: { default: false },
-    pitchAxisEnabled:  { default: true }
+    pitchAxisEnabled:  { default: true },
+    debug:             { default: false }
   },
 
   init: function () {
@@ -203,7 +204,7 @@ module.exports = {
 
     // Emit convenience event, identifying key.
     this.el.emit(event.type + ':' + event.code, new KeyboardEvent(event.type, event));
-    console.log(event.type + ':' + event.code);
+    if (this.data.debug) console.log(event.type + ':' + event.code);
   },
 
   /*******************************************************************
