@@ -1,6 +1,6 @@
 {
   "name": "aframe-keyboard-controls",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Keyboard controls for A-Frame.",
   "main": "keyboard-controls.js",
   "config": {
