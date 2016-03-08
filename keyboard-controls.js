@@ -59,11 +59,7 @@ module.exports = {
   * Movement
   */
 
-  tick: function () {
-    this.updateRotation();
-    this.updatePosition();
-    this.updateButtonState();
-  },
+  tick: function () { this.update(); },
 
   update: function (previousData) {
     var data = this.data;
