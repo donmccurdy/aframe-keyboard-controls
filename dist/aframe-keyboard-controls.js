@@ -63,7 +63,7 @@
 
 	__webpack_require__(2);
 
-	var MAX_DELTA = 0.2,
+	var MAX_DELTA = 200,
 	    PROXY_FLAG = '__keyboard-controls-proxy';
 
 	var KeyboardEvent = window.KeyboardEvent;
@@ -110,28 +110,18 @@
 	      keyup: this.onKeyUp.bind(this),
 	      blur: this.onBlur.bind(this)
 	    };
-
-	    var sceneEl = this.el.sceneEl;
-	    if (sceneEl.addBehavior) {
-	      sceneEl.addBehavior(this);
-	      this.attachEventListeners();
-	    }
+	    this.attachEventListeners();
 	  },
 
 	  /*******************************************************************
 	  * Movement
 	  */
 
-	  tick: function () { this.update(); },
-
-	  update: function (previousData) {
+	  tick: function (t, dt) {
 	    var data = this.data;
 	    var acceleration = data.acceleration;
 	    var easing = data.easing;
 	    var velocity = this.velocity;
-	    var prevTime = this.prevTime = this.prevTime || Date.now();
-	    var time = window.performance.now();
-	    var delta = (time - prevTime) / 1000;
 	    var keys = this.getKeys();
 	    var movementVector;
 	    var pitchAxis = data.pitchAxis;
@@ -139,40 +129,39 @@
 	    var pitchSign = data.pitchAxisInverted ? -1 : 1;
 	    var rollSign = data.rollAxisInverted ? -1 : 1;
 	    var el = this.el;
-	    this.prevTime = time;
 
 	    // If data changed or FPS too low, reset velocity.
-	    if (previousData || delta > MAX_DELTA) {
+	    if (isNaN(dt) || dt > MAX_DELTA) {
 	      velocity[pitchAxis] = 0;
 	      velocity[rollAxis] = 0;
 	      return;
 	    }
 
-	    velocity[pitchAxis] -= velocity[pitchAxis] * easing * delta;
-	    velocity[rollAxis] -= velocity[rollAxis] * easing * delta;
+	    velocity[pitchAxis] -= velocity[pitchAxis] * easing * dt / 1000;
+	    velocity[rollAxis] -= velocity[rollAxis] * easing * dt / 1000;
 
 	    var position = el.getComputedAttribute('position');
 
 	    if (data.enabled) {
 	      if (data.pitchAxisEnabled) {
 	        if (keys.KeyA || keys.ArrowLeft)  {
-	          velocity[pitchAxis] -= pitchSign * acceleration * delta;
+	          velocity[pitchAxis] -= pitchSign * acceleration * dt / 1000;
 	        }
 	        if (keys.KeyD || keys.ArrowRight) {
-	          velocity[pitchAxis] += pitchSign * acceleration * delta;
+	          velocity[pitchAxis] += pitchSign * acceleration * dt / 1000;
 	        }
 	      }
 	      if (data.rollAxisEnabled) {
 	        if (keys.KeyW || keys.ArrowUp)   {
-	          velocity[rollAxis] -= rollSign * acceleration * delta;
+	          velocity[rollAxis] -= rollSign * acceleration * dt / 1000;
 	        }
 	        if (keys.KeyS || keys.ArrowDown) {
-	          velocity[rollAxis] += rollSign * acceleration * delta;
+	          velocity[rollAxis] += rollSign * acceleration * dt / 1000;
 	        }
 	      }
 	    }
 
-	    movementVector = this.getMovementVector(delta);
+	    movementVector = this.getMovementVector(dt);
 	    el.object3D.translateX(movementVector.x);
 	    el.object3D.translateY(movementVector.y);
 	    el.object3D.translateZ(movementVector.z);
@@ -184,14 +173,14 @@
 	    });
 	  },
 
-	  getMovementVector: (function (delta) {
+	  getMovementVector: (function () {
 	    var direction = new THREE.Vector3(0, 0, 0);
 	    var rotation = new THREE.Euler(0, 0, 0, 'YXZ');
-	    return function (delta) {
+	    return function (dt) {
 	      var velocity = this.velocity;
 	      var elRotation = this.el.getAttribute('rotation');
 	      direction.copy(velocity);
-	      direction.multiplyScalar(delta);
+	      direction.multiplyScalar(dt / 1000);
 	      if (!elRotation) { return direction; }
 	      if (!this.data.fly) { elRotation.x = 0; }
 	      rotation.set(THREE.Math.degToRad(elRotation.x),
@@ -211,10 +200,6 @@
 
 	  pause: function () {
 	    this.removeEventListeners();
-	  },
-
-	  tick: function (t) { // jshint ignore:line
-	    this.update();
 	  },
 
 	  remove: function () {
@@ -269,7 +254,7 @@
 	  /*******************************************************************
 	  * Accessors
 	  */
-	 
+
 	  isPressed: function (code) {
 	    return code in this.getKeys();
 	  },
