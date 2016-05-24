@@ -967,7 +967,7 @@
 	      }});
 
 	      // Fix for nonstandard `key` values (FF36-)
-	      if ('key' in KeyboardEvent.prototype) {
+	      if (!'key' in KeyboardEvent.prototype) {
 	        var desc = Object.getOwnPropertyDescriptor(KeyboardEvent.prototype, 'key');
 	        Object.defineProperty(KeyboardEvent.prototype, 'key', { get: function() {
 	          var key = desc.get.call(this);
