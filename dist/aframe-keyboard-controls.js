@@ -169,10 +169,10 @@
 	        }
 	      }
 	      if (data.yawAxisEnabled) {
-	        if (keys.KeyE)   {
+	        if (keys.KeyQ)   {
 	          velocity[yawAxis] -= yawSign * acceleration * dt / 1000;
 	        }
-	        if (keys.KeyQ) {
+	        if (keys.KeyE) {
 	          velocity[yawAxis] += yawSign * acceleration * dt / 1000;
 	        }
 	      }
