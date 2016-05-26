@@ -21,8 +21,10 @@ var KeyboardEvent = window.KeyboardEvent;
  * freedom as a diver underwater or a plane flying.
  * @param {string} [rollAxis='z'] - The front-to-back axis.
  * @param {string} [pitchAxis='x'] - The left-to-right axis.
+ * @param {string} [yawAxis='y'] - The down-to-up axis.
  * @param {bool} [rollAxisInverted=false] - Roll axis is inverted
  * @param {bool} [pitchAxisInverted=false] - Pitch axis is inverted
+ * @param {bool} [yawAxisInverted=false] - Pitch axis is inverted
  */
 module.exports = {
   schema: {
@@ -32,10 +34,13 @@ module.exports = {
     fly:               { default: false },
     rollAxis:          { default: 'z', oneOf: [ 'x', 'y', 'z' ] },
     pitchAxis:         { default: 'x', oneOf: [ 'x', 'y', 'z' ] },
+    yawAxis:           { default: 'y', oneOf: [ 'x', 'y', 'z' ] },
     rollAxisInverted:  { default: false },
     rollAxisEnabled:   { default: true },
     pitchAxisInverted: { default: false },
     pitchAxisEnabled:  { default: true },
+    yawAxisInverted:   { default: false },
+    yawAxisEnabled:    { default: true },
     debug:             { default: false }
   },
 
@@ -63,19 +68,23 @@ module.exports = {
     var movementVector;
     var pitchAxis = data.pitchAxis;
     var rollAxis = data.rollAxis;
+    var yawAxis = data.yawAxis;
     var pitchSign = data.pitchAxisInverted ? -1 : 1;
     var rollSign = data.rollAxisInverted ? -1 : 1;
+    var yawSign = data.yawAxisInverted ? -1 : 1;
     var el = this.el;
 
     // If data changed or FPS too low, reset velocity.
     if (isNaN(dt) || dt > MAX_DELTA) {
       velocity[pitchAxis] = 0;
       velocity[rollAxis] = 0;
+      velocity[yawAxis] = 0;
       return;
     }
 
     velocity[pitchAxis] -= velocity[pitchAxis] * easing * dt / 1000;
     velocity[rollAxis] -= velocity[rollAxis] * easing * dt / 1000;
+    velocity[yawAxis] -= velocity[yawAxis] * easing * dt / 1000;
 
     var position = el.getComputedAttribute('position');
 
@@ -94,6 +103,14 @@ module.exports = {
         }
         if (keys.KeyS || keys.ArrowDown) {
           velocity[rollAxis] += rollSign * acceleration * dt / 1000;
+        }
+      }
+      if (data.yawAxisEnabled) {
+        if (keys.KeyE)   {
+          velocity[yawAxis] -= yawSign * acceleration * dt / 1000;
+        }
+        if (keys.KeyQ) {
+          velocity[yawAxis] += yawSign * acceleration * dt / 1000;
         }
       }
     }
