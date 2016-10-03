@@ -15,32 +15,44 @@ var KeyboardEvent = window.KeyboardEvent;
  * keys the entity moves and if you release it will stop. Easing simulates friction.
  * @param {number} [acceleration=65] - Determines the acceleration given
  * to the entity when pressing the keys.
+ * @param {number} [angularAcceleration=Math.PI*0.25] - Determines the angular
+ * acceleration given to the entity when pressing the keys. Only applied when
+ * fpsMode == true. Measured in Radians.
  * @param {bool} [enabled=true] - To completely enable or disable the controls
  * @param {bool} [fly=false] - Determines if the direction of the movement sticks
  * to the plane where the entity started off or if there are 6 degrees of
  * freedom as a diver underwater or a plane flying.
+ * @param {bool} [fpsMode=false] - First Person Shooter Mode. W/S =
+ * Forward/Back, Q/E = Strafe left/right, A/D = Rotate left/right. Enabling will
+ * have the effect of setting `fly` to `true`.
  * @param {string} [rollAxis='z'] - The front-to-back axis.
  * @param {string} [pitchAxis='x'] - The left-to-right axis.
  * @param {bool} [rollAxisInverted=false] - Roll axis is inverted
  * @param {bool} [pitchAxisInverted=false] - Pitch axis is inverted
+ * @param {bool} [yawAxisInverted=false] - Yaw axis is inverted. Used when
+ * fpsMode == true
  */
 module.exports = {
   schema: {
-    easing:            { default: 20 },
-    acceleration:      { default: 65 },
-    enabled:           { default: true },
-    fly:               { default: false },
-    rollAxis:          { default: 'z', oneOf: [ 'x', 'y', 'z' ] },
-    pitchAxis:         { default: 'x', oneOf: [ 'x', 'y', 'z' ] },
-    rollAxisInverted:  { default: false },
-    rollAxisEnabled:   { default: true },
-    pitchAxisInverted: { default: false },
-    pitchAxisEnabled:  { default: true },
-    debug:             { default: false }
+    easing:              { default: 20 },
+    acceleration:        { default: 65 },
+    angularAcceleration: { default: Math.PI / 4 },
+    enabled:             { default: true },
+    fly:                 { default: false },
+    fpsMode:             { default: false },
+    rollAxis:            { default: 'z', oneOf: [ 'x', 'y', 'z' ] },
+    pitchAxis:           { default: 'x', oneOf: [ 'x', 'y', 'z' ] },
+    rollAxisInverted:    { default: false },
+    rollAxisEnabled:     { default: true },
+    pitchAxisInverted:   { default: false },
+    pitchAxisEnabled:    { default: true },
+    yawAxisInverted:     { default: false },
+    debug:               { default: false }
   },
 
   init: function () {
     this.velocity = new THREE.Vector3();
+    this.angularVelocity = 0;
     this.localKeys = {};
     this.listeners = {
       keydown: this.onKeyDown.bind(this),
@@ -54,61 +66,105 @@ module.exports = {
   * Movement
   */
 
-  tick: function (t, dt) {
-    var data = this.data;
-    var acceleration = data.acceleration;
-    var easing = data.easing;
-    var velocity = this.velocity;
-    var keys = this.getKeys();
-    var movementVector;
-    var pitchAxis = data.pitchAxis;
-    var rollAxis = data.rollAxis;
-    var pitchSign = data.pitchAxisInverted ? -1 : 1;
-    var rollSign = data.rollAxisInverted ? -1 : 1;
-    var el = this.el;
+  tick: (function () {
+    var upVector = new THREE.Vector3(0, 1, 0);
+    var rotation = new THREE.Euler(0, 0, 0, 'YXZ');
+    return function (t, dt) {
+      var data = this.data;
+      var acceleration = data.acceleration;
+      var angularAcceleration = data.angularAcceleration;
+      var easing = data.easing;
+      var velocity = this.velocity;
+      var keys = this.getKeys();
+      var movementVector;
+      var pitchAxis = data.pitchAxis;
+      var rollAxis = data.rollAxis;
+      var pitchSign = data.pitchAxisInverted ? -1 : 1;
+      var rollSign = data.rollAxisInverted ? -1 : 1;
+      var yawSign = data.yawAxisInverted ? 1 : -1;
+      var el = this.el;
+      var strafeLeft = data.fpsMode ? ['KeyQ', 'ArrowLeft'] : ['KeyA', 'ArrowLeft'];
+      var strafeRight = data.fpsMode ? ['KeyE', 'ArrowRight'] : ['KeyD', 'ArrowRight'];
 
-    // If data changed or FPS too low, reset velocity.
-    if (isNaN(dt) || dt > MAX_DELTA) {
-      velocity[pitchAxis] = 0;
-      velocity[rollAxis] = 0;
-      return;
-    }
+      // If data changed or FPS too low, reset velocity.
+      if (isNaN(dt) || dt > MAX_DELTA) {
+        velocity[pitchAxis] = 0;
+        velocity[rollAxis] = 0;
+        this.angularVelocity = 0;
+        return;
+      }
 
-    velocity[pitchAxis] -= velocity[pitchAxis] * easing * dt / 1000;
-    velocity[rollAxis] -= velocity[rollAxis] * easing * dt / 1000;
+      velocity[pitchAxis] -= velocity[pitchAxis] * easing * dt / 1000;
+      velocity[rollAxis] -= velocity[rollAxis] * easing * dt / 1000;
+      this.angularVelocity -= this.angularVelocity * easing * dt / 1000;
 
-    var position = el.getComputedAttribute('position');
+      var position = el.getComputedAttribute('position');
 
-    if (data.enabled) {
-      if (data.pitchAxisEnabled) {
-        if (keys.KeyA || keys.ArrowLeft)  {
-          velocity[pitchAxis] -= pitchSign * acceleration * dt / 1000;
+      if (data.enabled) {
+        if (data.pitchAxisEnabled) {
+          if (strafeLeft.some(key => keys[key])) {
+            velocity[pitchAxis] -= pitchSign * acceleration * dt / 1000;
+          }
+          if (strafeRight.some(key => keys[key])) {
+            velocity[pitchAxis] += pitchSign * acceleration * dt / 1000;
+          }
         }
-        if (keys.KeyD || keys.ArrowRight) {
-          velocity[pitchAxis] += pitchSign * acceleration * dt / 1000;
+        if (data.rollAxisEnabled) {
+          if (keys.KeyW || keys.ArrowUp)   {
+            velocity[rollAxis] -= rollSign * acceleration * dt / 1000;
+          }
+          if (keys.KeyS || keys.ArrowDown) {
+            velocity[rollAxis] += rollSign * acceleration * dt / 1000;
+          }
+        }
+        if (data.fpsMode) {
+          if (keys.KeyA)   {
+            this.angularVelocity -= yawSign * angularAcceleration * dt / 1000;
+          }
+          if (keys.KeyD) {
+            this.angularVelocity += yawSign * angularAcceleration * dt / 1000;
+          }
         }
       }
-      if (data.rollAxisEnabled) {
-        if (keys.KeyW || keys.ArrowUp)   {
-          velocity[rollAxis] -= rollSign * acceleration * dt / 1000;
-        }
-        if (keys.KeyS || keys.ArrowDown) {
-          velocity[rollAxis] += rollSign * acceleration * dt / 1000;
-        }
+
+      if (data.fpsMode) {
+        var elRotation = this.el.getAttribute('rotation');
+        this.rotateOnAxis(rotation, upVector, this.angularVelocity);
+
+        el.setAttribute('rotation', {
+          x: THREE.Math.radToDeg(rotation.x),
+          y: THREE.Math.radToDeg(rotation.y),
+          z: THREE.Math.radToDeg(rotation.z)
+        });
       }
-    }
 
-    movementVector = this.getMovementVector(dt);
-    el.object3D.translateX(movementVector.x);
-    el.object3D.translateY(movementVector.y);
-    el.object3D.translateZ(movementVector.z);
+      movementVector = this.getMovementVector(dt);
+      el.object3D.translateX(movementVector.x);
+      el.object3D.translateY(movementVector.y);
+      el.object3D.translateZ(movementVector.z);
 
-    el.setAttribute('position', {
-      x: position.x + movementVector.x,
-      y: position.y + movementVector.y,
-      z: position.z + movementVector.z
-    });
-  },
+      el.setAttribute('position', {
+        x: position.x + movementVector.x,
+        y: position.y + movementVector.y,
+        z: position.z + movementVector.z
+      });
+    };
+  })(),
+
+
+  rotateOnAxis: (function () {
+
+    var quaternion = new THREE.Quaternion();
+    var eulerAsQuaternion = new THREE.Quaternion();
+
+    return function (euler, axis, angle) {
+      quaternion.setFromAxisAngle(axis, angle);
+      eulerAsQuaternion.setFromEuler(euler);
+      eulerAsQuaternion.multiply(quaternion);
+      euler.setFromQuaternion(eulerAsQuaternion, euler.order);
+    };
+
+  })(),
 
   getMovementVector: (function () {
     var direction = new THREE.Vector3(0, 0, 0);
@@ -119,7 +175,7 @@ module.exports = {
       direction.copy(velocity);
       direction.multiplyScalar(dt / 1000);
       if (!elRotation) { return direction; }
-      if (!this.data.fly) { elRotation.x = 0; }
+      if (this.data.fpsMode || !this.data.fly) { elRotation.x = 0; }
       rotation.set(THREE.Math.degToRad(elRotation.x),
                    THREE.Math.degToRad(elRotation.y), 0);
       direction.applyEuler(rotation);

@@ -44,5 +44,13 @@
       <a-light color="#ddf" distance="100" intensity="0.4" type="point"></a-light>
 
     </a-scene>
+    <p style="position: fixed; top: 5px; left: 5px; background-color: rgba(0,0,0,0.5); color: white; padding: 10px;">&lt;Space&gt; to toggle First Person Shooter Mode</p>
+    <script>
+      var controlledEl = document.querySelector('[keyboard-controls]');
+      controlledEl.addEventListener('keyup:Space', function() {
+        var fpsMode = controlledEl.getAttribute('keyboard-controls').fpsMode;
+        controlledEl.setAttribute('keyboard-controls', 'fpsMode', !fpsMode);
+      });
+    </script>
   </body>
 </html>
