@@ -44,12 +44,29 @@
       <a-light color="#ddf" distance="100" intensity="0.4" type="point"></a-light>
 
     </a-scene>
-    <p style="position: fixed; top: 5px; left: 5px; background-color: rgba(0,0,0,0.5); color: white; padding: 10px;">&lt;Space&gt; to toggle First Person Shooter Mode</p>
+    <p id="mode-instruction" style="position: fixed; top: 5px; left: 5px; background-color: rgba(0,0,0,0.5); color: white; padding: 10px;">Mode: Default. (&lt;Space&gt; to change)</p>
     <script>
       var controlledEl = document.querySelector('[keyboard-controls]');
+      var instructionEl = document.querySelector('#mode-instruction');
+
       controlledEl.addEventListener('keyup:Space', function() {
-        var fpsMode = controlledEl.getAttribute('keyboard-controls').fpsMode;
-        controlledEl.setAttribute('keyboard-controls', 'fpsMode', !fpsMode);
+
+        var mode = controlledEl.getComputedAttribute('keyboard-controls').mode;
+
+        if (mode === 'default') {
+          mode = 'fly';
+          instructionEl.innerHTML = 'Mode: Fly. (&lt;Space&gt; to change)'
+        } else if (mode === 'fly') {
+          mode = 'fps';
+          instructionEl.innerHTML = 'Mode: First Person Shooter. (&lt;Space&gt; to change)'
+        } else if (mode === 'fps') {
+          mode = 'default';
+          instructionEl.innerHTML = 'Mode: Default. (&lt;Space&gt; to change)'
+
+        }
+
+        console.log('settigng mode:', mode);
+        controlledEl.setAttribute('keyboard-controls', 'mode', mode);
       });
     </script>
   </body>

@@ -17,20 +17,20 @@ var KeyboardEvent = window.KeyboardEvent;
  * to the entity when pressing the keys.
  * @param {number} [angularAcceleration=Math.PI*0.25] - Determines the angular
  * acceleration given to the entity when pressing the keys. Only applied when
- * fpsMode == true. Measured in Radians.
+ * mode == 'fps'. Measured in Radians.
  * @param {bool} [enabled=true] - To completely enable or disable the controls
- * @param {bool} [fly=false] - Determines if the direction of the movement sticks
- * to the plane where the entity started off or if there are 6 degrees of
- * freedom as a diver underwater or a plane flying.
- * @param {bool} [fpsMode=false] - First Person Shooter Mode. W/S =
- * Forward/Back, Q/E = Strafe left/right, A/D = Rotate left/right. Enabling will
- * have the effect of setting `fly` to `true`.
+ * @param {string} [mode='default'] -
+ *   'default' enforces the direction of the movement to stick to the plane
+ *   where the entity started off.
+ *   'fps' extends 'default' by enabling "First Person Shooter" controls: W/S =
+ *   Forward/Back, Q/E = Strafe left/right, A/D = Rotate left/right
+ *   'fly' enables 6 degrees of freedom as a diver underwater or a plane flying.
  * @param {string} [rollAxis='z'] - The front-to-back axis.
  * @param {string} [pitchAxis='x'] - The left-to-right axis.
  * @param {bool} [rollAxisInverted=false] - Roll axis is inverted
  * @param {bool} [pitchAxisInverted=false] - Pitch axis is inverted
  * @param {bool} [yawAxisInverted=false] - Yaw axis is inverted. Used when
- * fpsMode == true
+ * mode == 'fps'
  */
 module.exports = {
   schema: {
@@ -38,8 +38,7 @@ module.exports = {
     acceleration:        { default: 65 },
     angularAcceleration: { default: Math.PI / 4 },
     enabled:             { default: true },
-    fly:                 { default: false },
-    fpsMode:             { default: false },
+    mode:                { default: 'default', oneOf: ['default', 'fly', 'fps']},
     rollAxis:            { default: 'z', oneOf: [ 'x', 'y', 'z' ] },
     pitchAxis:           { default: 'x', oneOf: [ 'x', 'y', 'z' ] },
     rollAxisInverted:    { default: false },
@@ -83,8 +82,8 @@ module.exports = {
       var rollSign = data.rollAxisInverted ? -1 : 1;
       var yawSign = data.yawAxisInverted ? 1 : -1;
       var el = this.el;
-      var strafeLeft = data.fpsMode ? ['KeyQ', 'ArrowLeft'] : ['KeyA', 'ArrowLeft'];
-      var strafeRight = data.fpsMode ? ['KeyE', 'ArrowRight'] : ['KeyD', 'ArrowRight'];
+      var strafeLeft = data.mode === 'fps' ? ['KeyQ', 'ArrowLeft'] : ['KeyA', 'ArrowLeft'];
+      var strafeRight = data.mode === 'fps' ? ['KeyE', 'ArrowRight'] : ['KeyD', 'ArrowRight'];
 
       // If data changed or FPS too low, reset velocity.
       if (isNaN(dt) || dt > MAX_DELTA) {
@@ -117,7 +116,7 @@ module.exports = {
             velocity[rollAxis] += rollSign * acceleration * dt / 1000;
           }
         }
-        if (data.fpsMode) {
+        if (data.mode === 'fps') {
           if (keys.KeyA)   {
             this.angularVelocity -= yawSign * angularAcceleration * dt / 1000;
           }
@@ -127,7 +126,7 @@ module.exports = {
         }
       }
 
-      if (data.fpsMode) {
+      if (data.mode === 'fps') {
         var elRotation = this.el.getAttribute('rotation');
         this.rotateOnAxis(rotation, upVector, this.angularVelocity);
 
@@ -175,7 +174,7 @@ module.exports = {
       direction.copy(velocity);
       direction.multiplyScalar(dt / 1000);
       if (!elRotation) { return direction; }
-      if (this.data.fpsMode || !this.data.fly) { elRotation.x = 0; }
+      if (this.data.mode !== 'fly') { elRotation.x = 0; }
       rotation.set(THREE.Math.degToRad(elRotation.x),
                    THREE.Math.degToRad(elRotation.y), 0);
       direction.applyEuler(rotation);
