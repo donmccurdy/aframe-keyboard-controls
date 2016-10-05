@@ -28,6 +28,9 @@ Keyboard events only (no movement):
 </a-scene>
 ```
 
+The full list of options can be seen in
+[`keyboard-controls.js`](keyboard-controls.js).
+
 ## Usage + Remote Device
 
 [ProxyControls.js ⇢ Docs](http://localhost:3000/#/docs#remote-device)
