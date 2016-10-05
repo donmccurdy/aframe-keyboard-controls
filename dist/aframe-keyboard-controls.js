@@ -164,10 +164,10 @@
 
 	      if (data.enabled) {
 	        if (data.pitchAxisEnabled) {
-	          if (strafeLeft.some(key => keys[key])) {
+	          if (strafeLeft.some((key) => keys[key])) {
 	            velocity[pitchAxis] -= pitchSign * acceleration * dt / 1000;
 	          }
-	          if (strafeRight.some(key => keys[key])) {
+	          if (strafeRight.some((key) => keys[key])) {
 	            velocity[pitchAxis] += pitchSign * acceleration * dt / 1000;
 	          }
 	        }
@@ -190,7 +190,6 @@
 	      }
 
 	      if (data.mode === 'fps') {
-	        var elRotation = this.el.getAttribute('rotation');
 	        this.rotateOnAxis(rotation, upVector, this.angularVelocity);
 
 	        el.setAttribute('rotation', {
