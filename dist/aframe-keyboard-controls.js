@@ -164,10 +164,10 @@
 
 	      if (data.enabled) {
 	        if (data.pitchAxisEnabled) {
-	          if (strafeLeft.some((key) => keys[key])) {
+	          if (keys[strafeLeft[0]] || keys[strafeLeft[1]]) {
 	            velocity[pitchAxis] -= pitchSign * acceleration * dt / 1000;
 	          }
-	          if (strafeRight.some((key) => keys[key])) {
+	          if (keys[strafeRight[0]] || keys[strafeRight[1]]) {
 	            velocity[pitchAxis] += pitchSign * acceleration * dt / 1000;
 	          }
 	        }
