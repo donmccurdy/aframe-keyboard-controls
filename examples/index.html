@@ -44,29 +44,29 @@
       <a-light color="#ddf" distance="100" intensity="0.4" type="point"></a-light>
 
     </a-scene>
-    <p id="mode-instruction" style="position: fixed; top: 5px; left: 5px; background-color: rgba(0,0,0,0.5); color: white; padding: 10px;">Mode: Default. (&lt;Space&gt; to change)</p>
+    <style>
+.mode-instruction {
+  position: fixed;
+  top: 5px;
+  left: 5px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #FFF;
+}
+    </style>
+    <p class="mode-instruction">Mode: <span data-bind="mode">Default</span>. (&lt;Space&gt; to change)</p>
     <script>
       var controlledEl = document.querySelector('[keyboard-controls]');
-      var instructionEl = document.querySelector('#mode-instruction');
+      var labelEl = document.querySelector('[data-bind=mode]');
 
-      controlledEl.addEventListener('keyup:Space', function() {
+      var modes = ['default', 'fly', 'fps'];
+      var labels = ['Default', 'Fly', 'FPS'];
+      var modeIndex = 0;
 
-        var mode = controlledEl.getComputedAttribute('keyboard-controls').mode;
-
-        if (mode === 'default') {
-          mode = 'fly';
-          instructionEl.innerHTML = 'Mode: Fly. (&lt;Space&gt; to change)'
-        } else if (mode === 'fly') {
-          mode = 'fps';
-          instructionEl.innerHTML = 'Mode: First Person Shooter. (&lt;Space&gt; to change)'
-        } else if (mode === 'fps') {
-          mode = 'default';
-          instructionEl.innerHTML = 'Mode: Default. (&lt;Space&gt; to change)'
-
-        }
-
-        console.log('settigng mode:', mode);
-        controlledEl.setAttribute('keyboard-controls', 'mode', mode);
+      controlledEl.addEventListener('keyup:Space', function () {
+        modeIndex = (modeIndex + 1) % modes.length;
+        controlledEl.setAttribute('keyboard-controls', 'mode', modes[modeIndex]);
+        labelEl.innerHTML = labels[modeIndex];
       });
     </script>
   </body>
