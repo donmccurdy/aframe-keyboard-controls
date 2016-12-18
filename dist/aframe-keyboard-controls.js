@@ -160,7 +160,7 @@
 	      velocity[rollAxis] -= velocity[rollAxis] * easing * dt / 1000;
 	      this.angularVelocity -= this.angularVelocity * easing * dt / 1000;
 
-	      var position = el.getComputedAttribute('position');
+	      var position = el.getAttribute('position');
 
 	      if (data.enabled) {
 	        if (data.pitchAxisEnabled) {
